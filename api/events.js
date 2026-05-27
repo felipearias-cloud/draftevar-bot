@@ -1,6 +1,9 @@
 export default async function handler(req, res) {
   const body = req.body || {};
 
+  console.log("BODY TYPE:", body.type);
+  console.log("EVENT:", JSON.stringify(body.event));
+
   if (body.type === "url_verification") {
     res.setHeader("Content-Type", "application/json");
     return res.status(200).end(JSON.stringify({ challenge: body.challenge }));
@@ -9,9 +12,11 @@ export default async function handler(req, res) {
   const event = body.event;
 
   if (!event || event.type !== "message" || event.subtype) {
+    console.log("FILTERED OUT - event type:", event?.type, "subtype:", event?.subtype);
     return res.status(200).send("OK");
   }
 
+  console.log("CALLING MENTION AGENT");
   res.status(200).send("OK");
   await mentionAgent(event);
 }
@@ -21,7 +26,7 @@ async function mentionAgent(event) {
   const agentId = process.env.DRAFTEVAR_USER_ID;
   const threadTs = event.thread_ts || event.ts;
 
-  await fetch("https://slack.com/api/chat.postMessage", {
+  const result = await fetch("https://slack.com/api/chat.postMessage", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -33,4 +38,7 @@ async function mentionAgent(event) {
       text: `<@${agentId}> ${event.text}`,
     }),
   });
+
+  const data = await result.json();
+  console.log("SLACK RESPONSE:", JSON.stringify(data));
 }
