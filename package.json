@@ -1,6 +1,8 @@
 {
   "name": "draftevar-bot",
   "version": "1.0.0",
-  "description": "DrafteVAR Slack bot - lee mensajes y activa agente ChatGPT",
-  "private": true
+  "private": true,
+  "scripts": {
+    "build": "echo 'ok'"
+  }
 }
