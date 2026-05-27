@@ -1,9 +1,6 @@
 export default async function handler(req, res) {
   const body = req.body || {};
 
-  console.log("BODY TYPE:", body.type);
-  console.log("EVENT:", JSON.stringify(body.event));
-
   if (body.type === "url_verification") {
     res.setHeader("Content-Type", "application/json");
     return res.status(200).end(JSON.stringify({ challenge: body.challenge }));
@@ -11,12 +8,17 @@ export default async function handler(req, res) {
 
   const event = body.event;
 
-  if (!event || event.type !== "message" || event.subtype) {
-    console.log("FILTERED OUT - event type:", event?.type, "subtype:", event?.subtype);
+  // Ignorar si no es mensaje, si es edición/borrado, o si es de un bot
+  if (
+    !event ||
+    event.type !== "message" ||
+    event.subtype ||
+    event.bot_id ||
+    event.bot_profile
+  ) {
     return res.status(200).send("OK");
   }
 
-  console.log("CALLING MENTION AGENT");
   res.status(200).send("OK");
   await mentionAgent(event);
 }
