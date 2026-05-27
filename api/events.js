@@ -13,13 +13,20 @@ export default async function handler(req) {
 
   const event = body.event;
 
-  if (!event || event.type !== "message" || event.subtype || event.bot_id || event.bot_profile) {
+  // Ignorar bots, ediciones, y mensajes que ya son respuestas en un hilo
+  if (
+    !event ||
+    event.type !== "message" ||
+    event.subtype ||
+    event.bot_id ||
+    event.bot_profile ||
+    event.thread_ts  // Si tiene thread_ts es una respuesta en hilo, no mensaje nuevo
+  ) {
     return new Response("OK", { status: 200 });
   }
 
   const token = process.env.SLACK_BOT_TOKEN;
   const agentId = process.env.DRAFTEVAR_USER_ID;
-  const threadTs = event.thread_ts || event.ts;
 
   await fetch("https://slack.com/api/chat.postMessage", {
     method: "POST",
@@ -29,8 +36,8 @@ export default async function handler(req) {
     },
     body: JSON.stringify({
       channel: event.channel,
-      thread_ts: threadTs,
-      text: `<!subteam^${agentId}> ${event.text}`,
+      thread_ts: event.ts,
+      text: `<!subteam^${agentId}>`,
     }),
   });
 
