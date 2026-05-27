@@ -2,6 +2,8 @@ export const config = {
   runtime: 'edge',
 };
 
+const WORKFLOW_ID = "Wf0B59QZPE04";
+
 export default async function handler(req) {
   const body = await req.json().catch(() => ({}));
 
@@ -12,17 +14,9 @@ export default async function handler(req) {
   }
 
   const event = body.event;
-  console.log("EVENT FULL:", JSON.stringify(event));
 
-  if (
-    !event ||
-    event.type !== "message" ||
-    event.subtype ||
-    event.bot_id ||
-    event.bot_profile ||
-    event.thread_ts
-  ) {
-    console.log("FILTERED subtype:", event?.subtype, "bot_id:", event?.bot_id, "thread_ts:", event?.thread_ts);
+  // Solo responder a mensajes del workflow específico
+  if (!event || event.workflow_id !== WORKFLOW_ID) {
     return new Response("OK", { status: 200 });
   }
 
