@@ -12,16 +12,17 @@ export default async function handler(req) {
   }
 
   const event = body.event;
+  console.log("EVENT FULL:", JSON.stringify(event));
 
-  // Ignorar bots, ediciones, y mensajes que ya son respuestas en un hilo
   if (
     !event ||
     event.type !== "message" ||
     event.subtype ||
     event.bot_id ||
     event.bot_profile ||
-    event.thread_ts  // Si tiene thread_ts es una respuesta en hilo, no mensaje nuevo
+    event.thread_ts
   ) {
+    console.log("FILTERED subtype:", event?.subtype, "bot_id:", event?.bot_id, "thread_ts:", event?.thread_ts);
     return new Response("OK", { status: 200 });
   }
 
