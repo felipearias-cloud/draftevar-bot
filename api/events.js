@@ -8,7 +8,7 @@ export default async function handler(req, res) {
 
   const event = body.event;
 
-  if (!event || event.type !== "message" || event.subtype || event.bot_id || event.app_id) {
+  if (!event || event.type !== "message" || event.subtype) {
     return res.status(200).send("OK");
   }
 
