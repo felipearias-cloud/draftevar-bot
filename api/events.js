@@ -1,29 +1,22 @@
-export default async function handler(req, res) {
-  const body = req.body || {};
+export const config = {
+  runtime: 'edge',
+};
+
+export default async function handler(req) {
+  const body = await req.json().catch(() => ({}));
 
   if (body.type === "url_verification") {
-    res.setHeader("Content-Type", "application/json");
-    return res.status(200).end(JSON.stringify({ challenge: body.challenge }));
+    return new Response(JSON.stringify({ challenge: body.challenge }), {
+      headers: { "Content-Type": "application/json" },
+    });
   }
 
   const event = body.event;
 
-  // Ignorar si no es mensaje, si es edición/borrado, o si es de un bot
-  if (
-    !event ||
-    event.type !== "message" ||
-    event.subtype ||
-    event.bot_id ||
-    event.bot_profile
-  ) {
-    return res.status(200).send("OK");
+  if (!event || event.type !== "message" || event.subtype || event.bot_id || event.bot_profile) {
+    return new Response("OK", { status: 200 });
   }
 
-  res.status(200).send("OK");
-  await mentionAgent(event);
-}
-
-async function mentionAgent(event) {
   const token = process.env.SLACK_BOT_TOKEN;
   const agentId = process.env.DRAFTEVAR_USER_ID;
   const threadTs = event.thread_ts || event.ts;
@@ -43,4 +36,6 @@ async function mentionAgent(event) {
 
   const data = await result.json();
   console.log("SLACK RESPONSE:", JSON.stringify(data));
+
+  return new Response("OK", { status: 200 });
 }
