@@ -21,7 +21,7 @@ export default async function handler(req) {
   const agentId = process.env.DRAFTEVAR_USER_ID;
   const threadTs = event.thread_ts || event.ts;
 
-  const result = await fetch("https://slack.com/api/chat.postMessage", {
+  await fetch("https://slack.com/api/chat.postMessage", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -30,12 +30,9 @@ export default async function handler(req) {
     body: JSON.stringify({
       channel: event.channel,
       thread_ts: threadTs,
-      text: `<@${agentId}> ${event.text}`,
+      text: `<!subteam^${agentId}> ${event.text}`,
     }),
   });
-
-  const data = await result.json();
-  console.log("SLACK RESPONSE:", JSON.stringify(data));
 
   return new Response("OK", { status: 200 });
 }
